@@ -79,7 +79,7 @@ public abstract class BankAccount {
     	}
     
     public void setOverdraft(double v) { 
-}
+    	throw new UnsupportedOperationException("Overdraft applies only to Current accounts."); }
 
     @Override
     public String toString() {
