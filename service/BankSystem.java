@@ -53,7 +53,7 @@ public final class BankSystem {
     }
 
     
-//operayions for the files
+//operayions for the files---------------------
     
     public void open(File f) throws IOException {
         closeIfOpen();//close any existing fule
@@ -88,6 +88,76 @@ public final class BankSystem {
         dirty = false;
     }
 
-   
+
+ //------------CRUD based functions for accounts and user validation
+    
+    public static void validateAccountNumber(String s) {
+        if (s == null || !s.matches("\\d{8}")) {
+            throw new IllegalArgumentException("Account number must be exactly 8 digits.");
+        }
+    }
+
+    public static void validateName(String s, String label) {
+        if (s == null || s.trim().isEmpty()) throw new IllegalArgumentException(label + " is required.");
+        if (s.length() > 20) throw new IllegalArgumentException(label + " must be <= 20 chars.");
+    }
+
+    public BankAccount create(String accNum, String surname, String firstName, AccountType type) throws IOException {
+        requireOpen();
+        validateAccountNumber(accNum);
+        validateName(surname, "Surname");
+        validateName(firstName, "First name");
+
+        int slot = store.findInsertSlot(accNum);
+        if (slot == -1) throw new IllegalStateException("File is full (25 records).");
+
+        int id = nextAccountId++;
+        BankAccount a = (type == AccountType.CURRENT)
+                ? new CurrentAccount(id, accNum, surname, firstName, 0.0, 0.0)
+                : new DepositAccount(id, accNum, surname, firstName, 0.0);
+
+        table[slot] = a;
+        store.write(slot, a);
+        dirty = true;
+        currentSlot = slot;
+        return a;
+    }
+
+    public void modify(String accNum, String surname, String firstName, AccountType type) throws IOException {
+        requireOpen();
+        validateAccountNumber(accNum);
+        validateName(surname, "Surname");
+        validateName(firstName, "First name");
+
+        int slot = mustFindSlot(accNum);
+        BankAccount old = table[slot];
+
+        // Keep id/accountNumber/balance; allow type swap by converting object
+        BankAccount updated;
+        if (type == AccountType.CURRENT) {
+            double od = (old instanceof CurrentAccount ca) ? ca.getOverdraft() : 0.0;
+            updated = new CurrentAccount(old.getAccountId(), old.getAccountNumber(), surname, firstName, old.getBalance(), od);
+        } else {
+            updated = new DepositAccount(old.getAccountId(), old.getAccountNumber(), surname, firstName, old.getBalance());
+        }
+
+        table[slot] = updated;
+        store.write(slot, updated);
+        dirty = true;
+        currentSlot = slot;
+    }
+
+    public void delete(String accNum) throws IOException {
+        requireOpen();
+        validateAccountNumber(accNum);
+
+        int slot = mustFindSlot(accNum);
+        table[slot] = null;
+        store.delete(slot);
+        dirty = true;
+        currentSlot = firstSlot();
+    }
+
+
 }
 
