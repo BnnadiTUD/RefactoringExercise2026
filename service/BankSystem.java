@@ -158,6 +158,53 @@ public final class BankSystem {
         currentSlot = firstSlot();
     }
 
+    // ---------------- Overdraft / Interest ----------------
+
+    public void setOverdraft(String accNum, double overdraft) throws IOException {
+        requireOpen();
+        validateAccountNumber(accNum);
+        if (overdraft < 0) throw new IllegalArgumentException("Overdraft must be >= 0");
+
+        int slot = mustFindSlot(accNum);
+        BankAccount a = table[slot];
+        if (!(a instanceof CurrentAccount ca)) throw new IllegalStateException("Overdraft applies only to Current accounts.");
+        ca.setOverdraft(overdraft);
+
+        store.write(slot, ca);
+        dirty = true;
+    }
+
+    public void setInterestRate(double rate) {
+        if (rate < 0) throw new IllegalArgumentException("Interest rate must be >= 0");
+        DepositAccount.setInterestRate(rate);
+        dirty = true;
+    }
+
+    public void calculateInterest() throws IOException {
+        requireOpen();
+        for (int i = 0; i < table.length; i++) {
+            if (table[i] instanceof DepositAccount da) {
+                da.applyInterest();
+                store.write(i, da);
+                dirty = true;
+            }
+        }
+    }
+
+    // ---------------- Trans --
+
+    public void deposit(String accNum, double amount) throws IOException {
+        requireOpen();
+        validateAccountNumber(accNum);
+        if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
+
+        int slot = mustFindSlot(accNum);
+        BankAccount a = table[slot];
+        a.deposit(amount);
+        store.write(slot, a);
+        dirty = true;
+        currentSlot = slot;
+    }
 
 }
 
