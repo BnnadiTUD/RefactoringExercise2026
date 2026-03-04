@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import model.AccountTransaction;
+
 public class CustomerDepositAccount extends CustomerAccount
 {
    double interestRate;

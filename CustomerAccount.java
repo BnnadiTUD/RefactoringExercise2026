@@ -1,4 +1,6 @@
-import java.util.ArrayList; 
+import java.util.ArrayList;
+
+import model.AccountTransaction; 
 
 public class CustomerAccount  {
    
@@ -29,9 +31,6 @@ public class CustomerAccount  {
 		return this.number;
 	}
 	
-	
-
-	
 	public double getBalance()
 	{
 		return this.balance;
@@ -41,7 +40,7 @@ public class CustomerAccount  {
 	{
 		return this.transactionList;
 	}
-
+	
 	//Mutator methods
 	public void setNumber(String number)
 	{
@@ -57,7 +56,5 @@ public class CustomerAccount  {
 	{
 		this.transactionList = transactionList;
 	}
-	
-	
 	
 }

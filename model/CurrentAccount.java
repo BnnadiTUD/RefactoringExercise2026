@@ -11,7 +11,9 @@ public final class CurrentAccount extends BankAccount {
 
     @Override
     public void withdraw(double amount) {
+        if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
         double newBal = getBalance() - amount;
+        if (newBal < -overdraft) throw new IllegalStateException("Withdrawal exceeds overdraft limit.");
         setBalance(newBal);
     }
 
@@ -22,6 +24,7 @@ public final class CurrentAccount extends BankAccount {
 
     @Override
     public void setOverdraft(double v) {
+        if (v < 0) throw new IllegalArgumentException("Overdraft must be >= 0");
         overdraft = v;
     }
 }

@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import model.AccountTransaction;
+
 public class CustomerCurrentAccount extends CustomerAccount 
 {
 	ATMCard atm;

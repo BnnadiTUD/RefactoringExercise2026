@@ -9,12 +9,15 @@ public final class DepositAccount extends BankAccount {
 
     @Override
     public void withdraw(double amount) {
+        if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
+        if (amount > getBalance()) throw new IllegalStateException("Withdrawal exceeds balance for Deposit account.");
         setBalance(getBalance() - amount);
     }
 
     public static double getInterestRate() { return interestRate; }
 
     public static void setInterestRate(double r) {
+        if (r < 0) throw new IllegalArgumentException("Interest rate must be >= 0");
         interestRate = r;
     }
 

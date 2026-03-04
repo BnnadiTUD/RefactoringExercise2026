@@ -12,7 +12,6 @@ public class AccountTransaction {
 		this.date = "";
 		this.type = "";	
 		this.amount = 0;
-		
 	}
 	
 	//Constructor with details
@@ -20,8 +19,6 @@ public class AccountTransaction {
 	{
 		this.date = date;
 		this.type = type;
-		
-		
 		this.amount = amount;
 		
 	}
@@ -63,7 +60,6 @@ public class AccountTransaction {
 		return  "\n" + "Date = " + this.date + "\n"
 				+ "Type = " + this.type + "\n"
 				+ "Amount = " + this.amount + "\n";
-			
 	}
 	
 }
