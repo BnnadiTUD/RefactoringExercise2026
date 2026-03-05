@@ -206,5 +206,66 @@ public final class BankSystem {
         currentSlot = slot;
     }
 
+    public void withdraw(String accNum, double amount) throws IOException {
+        requireOpen();
+        validateAccountNumber(accNum);
+        if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
+
+        int slot = mustFindSlot(accNum);
+        BankAccount a = table[slot];
+        a.withdraw(amount);
+        store.write(slot, a);
+        dirty = true;
+        currentSlot = slot;
+    }
+
+    // Finding and listing
+
+    public BankAccount findByAccountNumber(String accNum) throws IOException {
+        requireOpen();
+        validateAccountNumber(accNum);
+
+        int slot = store.findSlot(accNum);
+        if (slot == -1) return null;
+
+        currentSlot = slot;
+        return table[slot];
+    }
+
+    public List<BankAccount> findBySurname(String surname) {
+        validateName(surname, "Surname");
+        List<BankAccount> out = new ArrayList<>();
+        for (BankAccount a : table) {
+            if (a != null && a.getSurname().equalsIgnoreCase(surname.trim())) out.add(a);
+        }
+        return out;
+    }
+
+    public List<BankAccount> listAll() {
+        List<BankAccount> out = new ArrayList<>();
+        for (BankAccount a : table) if (a != null) out.add(a);
+        return out;
+    }
+
+    // nav-----
+
+    public BankAccount first() { currentSlot = firstSlot(); return current(); }
+    public BankAccount last() { currentSlot = lastSlot(); return current(); }
+
+    public BankAccount next() {
+        if (currentSlot < 0) return first();
+        for (int i = currentSlot + 1; i < table.length; i++) {
+            if (table[i] != null) { currentSlot = i; return table[i]; }
+        }
+        return null;
+    }
+
+    public BankAccount previous() {
+        if (currentSlot < 0) return first();
+        for (int i = currentSlot - 1; i >= 0; i--) {
+            if (table[i] != null) { currentSlot = i; return table[i]; }
+        }
+        return null;
+    }
 }
 
